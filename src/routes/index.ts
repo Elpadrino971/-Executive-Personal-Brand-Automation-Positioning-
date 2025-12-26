@@ -4,6 +4,8 @@ import * as authController from '../controllers/authController';
 import * as contentController from '../controllers/contentController';
 import * as voiceController from '../controllers/voiceController';
 import * as schedulerController from '../controllers/schedulerController';
+import adminRoutes from './admin';
+import paymentRoutes from './payment';
 
 const router = Router();
 
@@ -39,5 +41,11 @@ router.post('/schedule', authenticate, schedulerController.schedulePost);
 router.get('/schedule', authenticate, schedulerController.getScheduledPosts);
 router.delete('/schedule/:id', authenticate, schedulerController.cancelScheduledPost);
 router.patch('/schedule/:id', authenticate, schedulerController.reschedulePost);
+
+// Admin routes
+router.use('/admin', adminRoutes);
+
+// Payment routes
+router.use('/payment', paymentRoutes);
 
 export default router;

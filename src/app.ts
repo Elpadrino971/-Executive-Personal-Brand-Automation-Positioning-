@@ -5,11 +5,13 @@ import logger from './config/logger';
 import { connectRedis } from './config/redis';
 import { pool } from './config/database';
 import { ContentScheduler } from './services/queue/ContentScheduler';
+import { initializeSentry } from './config/sentry';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 
 dotenv.config();
+initializeSentry();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS users (
     position VARCHAR(255),
     tier VARCHAR(50) DEFAULT 'starter' CHECK (tier IN ('starter', 'professional', 'enterprise', 'done-for-you')),
     status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
+    stripe_customer_id VARCHAR(255),
+    two_factor_secret VARCHAR(255),
+    two_factor_enabled BOOLEAN DEFAULT false,
+    backup_codes JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -135,9 +139,29 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     UNIQUE(user_id)
 );
 
+-- Password Reset Tokens
+CREATE TABLE IF NOT EXISTS password_resets (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id)
+);
+
+-- Analytics Events
+CREATE TABLE IF NOT EXISTS analytics_events (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    event_type VARCHAR(100) NOT NULL,
+    event_data JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_tier ON users(tier);
+CREATE INDEX idx_users_stripe ON users(stripe_customer_id);
 CREATE INDEX idx_voice_profiles_user ON voice_profiles(user_id);
 CREATE INDEX idx_social_accounts_user ON social_accounts(user_id);
 CREATE INDEX idx_generated_content_user ON generated_content(user_id);
@@ -149,3 +173,6 @@ CREATE INDEX idx_trends_platform ON trends(platform);
 CREATE INDEX idx_trends_discovered ON trends(discovered_at);
 CREATE INDEX idx_activity_logs_user ON activity_logs(user_id);
 CREATE INDEX idx_subscriptions_user ON subscriptions(user_id);
+CREATE INDEX idx_password_resets_token ON password_resets(token);
+CREATE INDEX idx_analytics_events_user ON analytics_events(user_id);
+CREATE INDEX idx_analytics_events_type ON analytics_events(event_type);
